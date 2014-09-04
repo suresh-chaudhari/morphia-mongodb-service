@@ -2,17 +2,20 @@ Mongo Persistence Service Using Morphia
 ==========================
 This is a Generic Persistence Service to use for MongoDB easily. Created some generic method which is help full for ORM operation of MongoDB
 
+
 MongoDB Property
 ==========================
 Open the mongo.properties file from the conf folder.
 Do the following changes in property file
 
+```java
 mongo.host=localhost
 mongo.port=27017
 mongo.dbname=test
 mongo.username=""
 mongo.password =""
 mongo.connectionsPerHost=200
+```
 
 Usage
 ==========================
