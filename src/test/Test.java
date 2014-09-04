@@ -29,7 +29,7 @@ public class Test {
 //			checkFindMethod();
 //			getListPaging();
 //			getListPagingNative();
-//			getListbyNativeQuery();
+			getListbyNativeQuery();
 //			deleteRecords();
 		} catch (Exception e) {
 			e.printStackTrace();
