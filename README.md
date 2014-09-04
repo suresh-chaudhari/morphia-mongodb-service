@@ -16,6 +16,7 @@ mongo.connectionsPerHost=200
 
 Usage
 ==========================
+```java
 // Create the Mongo Persistence Service object
 MongoPersistenceService persistenceService = new MongoPersistenceService();
 
@@ -36,3 +37,4 @@ query.append("first_name", "test");
 
 BasicDBObject projection = new BasicDBObject("first_name",1);
 List<User> user1 =  persistenceService.getListByProjection(User.class, query,projection, 1, 2, null,null);
+```
