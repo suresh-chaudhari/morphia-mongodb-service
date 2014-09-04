@@ -10,6 +10,7 @@ import com.mongo.MongoPersistenceService;
 import com.mongo.MongoPersistenceService.OrderBy;
 import com.mongo.MongoQueryConstant.OPERATOR;
 import com.mongo.PersistenceException;
+import com.mongodb.BasicDBObject;
 
 /**
  * 
@@ -21,12 +22,15 @@ public class Test {
 
 	public static void main(String[] args) {
 		try {
-			addorUpdateSingleObject();
-			addMultipleObjects();
-			fetchRecords();
-			checkFindOneMethod();
-			checkFindMethod();
-			getListPaging();
+//			addorUpdateSingleObject();
+//			addMultipleObjects();
+//			fetchRecords();
+//			checkFindOneMethod();
+//			checkFindMethod();
+//			getListPaging();
+//			getListPagingNative();
+//			getListbyNativeQuery();
+//			deleteRecords();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -122,7 +126,52 @@ public class Test {
 		for (User obj : user) {
 			System.out.println(obj.getId());
 		}
-		System.out.println(user.size());
+	}
+	
+	/**
+	 * fetch all Records By pagination
+	 * @throws PersistenceException
+	 */
+	private static void getListPagingNative() throws PersistenceException {
+		List<User> user =  persistenceService.getListByNativeQuery(new BasicDBObject(), User.class);
+		for (User obj : user) {
+			System.out.println(obj.getId());
+		}
+	}
+	
+	/**
+	 * Get documents by using Native query (Mongo Java driver api)
+	 * @throws PersistenceException
+	 */
+	private static void getListbyNativeQuery() throws PersistenceException {
+		BasicDBObject query = new BasicDBObject();
+		query.append("first_name", "test");
+		List<User> user =  persistenceService.getListByPagingNativeQuery(User.class, query, 1, 2, "_id" , OrderBy.DESCENDING);
+		for (User obj : user) {
+			System.out.println(obj.getId());
+		}
+		
+		/**
+		 * Projection
+		 * Include use-1
+		 * Excluse use-0
+		 */
+		
+		BasicDBObject projection = new BasicDBObject("first_name",1);
+		List<User> user1 =  persistenceService.getListByProjection(User.class, query,projection, 1, 2, null,null);
+		for (User obj : user1) {
+			System.out.println(obj.getId() +" firstname:"+obj.getFirstName() + " Lastname:"+obj.getLastName());
+		}
+	}
+	/**
+	 * Delete documents form collection
+	 * @throws PersistenceException
+	 */
+	private static void deleteRecords() throws PersistenceException {
+//		persistenceService.deleteRecord("first_name", "karan12", User.class);
+		
+		BasicDBObject query = new BasicDBObject("first_name", "karan1");
+		persistenceService.deleteRecordByNativeQuery(query, User.class);
 	}
 
 }

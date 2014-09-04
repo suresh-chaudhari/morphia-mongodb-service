@@ -1,11 +1,18 @@
 package com.mongo;
 
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.mongodb.morphia.Datastore;
+import org.mongodb.morphia.Morphia;
 import org.mongodb.morphia.query.Query;
 
 import com.mongo.MongoQueryConstant.OPERATOR;
+import com.mongodb.BasicDBObject;
+import com.mongodb.DBCollection;
+import com.mongodb.DBObject;
+import com.mongodb.WriteResult;
 
 /**
  * 
@@ -118,7 +125,7 @@ public class MongoPersistenceService {
 			throw new PersistenceException(e);
 		}
 	}
-	
+
 	/**
 	 * Returns all record according to criteria by Order(ascending\descending)
 	 * Note: If orderkey and orderby value is null then it gives record in default ordering.
@@ -216,7 +223,7 @@ public class MongoPersistenceService {
 			throw new PersistenceException(e);
 		}
 	}
-	
+
 	/**
 	 * Get all records by Paging 
 	 * If you want paging by descending or ascending order specify key and order otherwise it should be null.
@@ -241,30 +248,239 @@ public class MongoPersistenceService {
 			throw new PersistenceException(e);
 		}
 	}
+
+	/**
+	 * Get all records by Paging using native Query 
+	 * If you want paging by descending or ascending order specify key and order otherwise it should be null.
+	 * @param query
+	 * @param clazz
+	 * @param pageNumber The value must be 1 or greater than
+	 * @param pageSize
+	 * @param orderKey
+	 * @param order
+	 * @return
+	 * @throws PersistenceException
+	 */
+	public <T> List<T> getListByPagingNativeQuery(Class<T> clazz, BasicDBObject query,int pageNumber, int pageSize ,String orderKey, OrderBy order)
+			throws PersistenceException {
+		try {
+			List<DBObject> dbObjectList = null;
+			if (pageNumber <= 0) 
+				throw new PersistenceException("Page Number must be 1 or greater than.");
+			DBCollection collection = datastore.getCollection(clazz);
+			BasicDBObject orderBy = null;
+			if (orderKey != null && order != null) 
+				orderBy = new BasicDBObject().append(orderKey, order.value());	
+			if (orderBy != null)
+				dbObjectList = collection.find(query).sort(orderBy).skip((pageNumber-1)*pageSize).limit(pageSize).toArray();
+			else 
+				dbObjectList = collection.find(query).skip((pageNumber-1)*pageSize).limit(pageSize).toArray();
+			return toObject(clazz, dbObjectList);
+		} catch (Exception e) {
+			throw new PersistenceException(e);
+		}
+	}
+
+	/**
+	 * Get List of Records by Projection
+	 * @param query
+	 * @param projectionQuery
+	 * @param orderKey
+	 * @param order
+	 * @param clazz
+	 * @return
+	 * @throws PersistenceException
+	 */
+	public <T> List<T> getListByProjection(Class<T> clazz, BasicDBObject query,BasicDBObject projectionQuery, int pageNumber, int pageSize, String orderKey, OrderBy order) 
+			throws PersistenceException {
+		try {
+			List<DBObject> dbObjectList = null;
+			DBCollection collection = datastore.getCollection(clazz);
+			BasicDBObject orderBy = null;
+			if (orderKey != null && order != null) 
+				orderBy = new BasicDBObject().append(orderKey, order.value());	
+			if (orderBy == null)
+				dbObjectList = collection.find(query, projectionQuery).skip((pageNumber-1)*pageSize).limit(pageSize).toArray();
+			else
+				dbObjectList = collection.find(query, projectionQuery).sort(orderBy).skip((pageNumber-1)*pageSize).limit(pageSize).toArray();
+			return toObject(clazz, dbObjectList);
+		} catch (Exception e) {
+			throw new PersistenceException(e);
+		}
+	}
+
+
+	/**
+	 * Get all records by more filter using native Query 
+	 * @param query
+	 * @return
+	 * @throws PersistenceException
+	 */
+	public <T> List<T> getListByNativeQuery(BasicDBObject query, Class<T> clazz) throws PersistenceException {
+		try {
+			List<DBObject> dbObjectList = null;
+			DBCollection collection = datastore.getCollection(clazz);
+			dbObjectList = collection.find(query).toArray();
+			return toObject(clazz, dbObjectList);
+		} catch (Exception e) {
+			throw new PersistenceException(e);
+		}
+	}
 	
-//	/**
-//	 * Returns all record according to query
-//	 * @param column
-//	 * @param columnValue
-//	 * @param clazz
-//	 * @return
-//	 * @throws PersistenceException
-//	 */
-//	public <T> List<T> findByQuery(Query<T> q, Class<T> clazz) throws PersistenceException {
-//		try {
-//			Query query = datastore.createQuery(clazz);
-//			 q = datastore.createQuery(clazz);
-//			 q.asList();
-////			 q.getSortObject().put(arg0, arg1)
-//			return datastore.find(query, clazz);
-//		}catch (Exception e) {
-//			throw new PersistenceException(e);
-//		}
-//	}
+	/**
+	 * Drop Collection
+	 * @param clazz
+	 * @throws PersistenceException 
+	 */
+	public void dropCollection(Class<?> clazz) throws PersistenceException {
+		try {	
+			datastore.getCollection(clazz).drop();
+		} catch (Exception e) {
+			throw new PersistenceException(e);
+		}
+	}
+
+	/**
+	 * Delete document data
+	 * @param key
+	 * @param value
+	 * @param clazz
+	 * @throws PersistenceException
+	 */
+	public void deleteRecord(String key, Object value, Class<?> clazz)throws PersistenceException  {
+		try {
+			datastore.delete(datastore.createQuery(clazz).filter(key, value));
+		}  catch (Exception e) {
+			throw new PersistenceException(e);
+		}
+	}
+
+	/**
+	 * Delete all documents from collection
+	 * @param key
+	 * @param value
+	 * @param clazz
+	 * @throws PersistenceException
+	 */
+	public void deleteRecords(Class<?> clazz)throws PersistenceException  {
+		try {
+			DBCollection collection = datastore.getCollection(clazz);
+			collection.remove(new BasicDBObject());
+		}  catch (Exception e) {
+			throw new PersistenceException(e);
+		}
+	}
+
+	/**
+	 * Delete Multiple documents by native query
+	 * @param query 
+	 * @param clazz
+	 * @throws PersistenceException
+	 */
+	public void deleteRecordByNativeQuery(BasicDBObject query, Class<?> clazz)throws PersistenceException  {
+		try {
+			DBCollection collection = datastore.getCollection(clazz);
+			collection.remove(query);
+		}  catch (Exception e) {
+			throw new PersistenceException(e);
+		}
+	}
+
+	/**
+	 * Update Single documents
+	 * @param clazz
+	 * @param query
+	 * @param updateQuery
+	 * @return
+	 * @throws PersistenceException
+	 */
+	@SuppressWarnings("deprecation")
+	public int updateSingleRecordByQuery(Class<?> clazz, BasicDBObject query, BasicDBObject updateQuery) throws PersistenceException  {
+		try {
+			DBCollection collection = datastore.getCollection(clazz);
+			WriteResult res = collection.update(query, updateQuery); //update single column
+			if (res.getError()!=null && res.getN() == 0) 
+				System.err.println("Update Document Failed,  Error:"+res.getError()+", count: "+res.getN()+", LastError"+res.getLastError());
+			return res.getN();
+		}  catch (Exception e) {
+			throw new PersistenceException(e);
+		}
+	}
+	
+	/**
+	 * Update multiple record
+	 * Note:Made update query according to below operation
+	 * <B>You can use any function like
+	 * <li>$set - update column
+	 * <li>$unset - remove column which match
+	 * <li>$push
+	 * @param clazz
+	 * @param query
+	 * @param updateQuery
+	 * @return
+	 * @throws PersistenceException
+	 */
+	@SuppressWarnings("deprecation")
+	public int updateMultiRecordByQuery(Class<?> clazz,BasicDBObject query, BasicDBObject updateQuery) throws PersistenceException  {
+		try {
+			DBCollection collection = datastore.getCollection(clazz);
+			WriteResult res = collection.updateMulti(query, updateQuery);
+			if (res.getError()!=null && res.getN() == 0) {
+				System.err.println("Update  Document Failed,  Error:"+res.getError()+", count: "+res.getN()+", LastError:"+res.getLastError());
+			}
+			return res.getN();
+		}  catch (Exception e) {
+			throw new PersistenceException(e);
+		}
+	}
 
 	
+	/**
+	 * 
+	 * @author suresh.c
+	 *
+	 */
 	public enum OrderBy {
-		ASCENDING,DESCENDING
+		ASCENDING(1),
+		DESCENDING(-1),
+		;
+		public final int value;
+
+		private OrderBy(int value) {
+			this.value = value;
+		}
+		public int value() {
+			return value;
+		}
+	}
+	/**
+	 * Convert DBObject to Object 
+	 * @param clazz
+	 * @param dbObjectList
+	 * @return
+	 * @throws IOException 
+	 */
+	public  <T> List<T> toObject(Class<T> clazz, List<DBObject> dbObjectList) throws IOException {
+		if (dbObjectList == null || dbObjectList.size() == 0)
+			return null;
+		List<T> t = new ArrayList<T>();
+		for (DBObject dbObject : dbObjectList) 
+			t.add(getObject(dbObject, clazz));
+		return t;
+	}
+
+	/**
+	 * Convert Dbobject to Object
+	 * @param dbObj
+	 * @param clazz
+	 * @return
+	 * @throws IOException
+	 */
+	public <T> T getObject(DBObject dbObj, Class<T> clazz) throws IOException {
+		Morphia morphia = new Morphia();
+		morphia.map(clazz);
+		T pojo = morphia.fromDBObject(clazz, dbObj);
+		return pojo;
 	}
 
 }
