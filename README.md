@@ -14,7 +14,7 @@ mongo.port=27017
 mongo.dbname=test
 mongo.username=""
 mongo.password =""
-mongo.connectionsPerHost=200
+mongo.connectionsPerHost=20
 ```
 
 Usage
