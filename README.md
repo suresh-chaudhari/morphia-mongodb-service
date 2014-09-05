@@ -40,4 +40,20 @@ query.append("first_name", "test");
 
 BasicDBObject projection = new BasicDBObject("first_name",1);
 List<User> user1 =  persistenceService.getListByProjection(User.class, query,projection, 1, 2, null,null);
+
+//create ascending order index
+persistenceService.createIndex(User.class, null, "first_name");
+		
+//create descending order index
+persistenceService.createIndex(User.class, OrderBy.DESCENDING, "last_name");
+		
+//create multiple column's ascending order index
+persistenceService.createIndex(User.class, OrderBy.ASCENDING, "first_name", "last_name");
+		
+//create multiple column's ascending order index
+persistenceService.createCompoundIndex(User.class, "first_name", "last_name");
+
+//Drop indexes for collection
+persistenceService.dropIndexes(User.class);
+
 ```
