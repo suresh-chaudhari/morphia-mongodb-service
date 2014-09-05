@@ -29,11 +29,11 @@ public class MongoDbConnection {
 			ServerAddress address = new ServerAddress(MONGO_PROPERTY.HOST.V(), Integer.parseInt(MONGO_PROPERTY.PORT.V()) );
 			MongoClientOptions options = MongoClientOptions.builder()
 					.connectionsPerHost(Integer.parseInt(MONGO_PROPERTY.CONNECTION_PER_HOST.V()))
-					.autoConnectRetry(true)
 					.build();
 			Morphia morphia = new Morphia();
 			MongoClient mongoClient = new MongoClient(address,null, options);
 			ds = morphia.createDatastore(mongoClient, MONGO_PROPERTY.DB_NAME.V() );	
+			ds.ensureIndexes(); //creates all defined with @Indexed
 		}  catch (UnknownHostException | MongoException e) {
 			e.printStackTrace();
 		}

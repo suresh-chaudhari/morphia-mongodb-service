@@ -29,8 +29,10 @@ public class Test {
 //			checkFindMethod();
 //			getListPaging();
 //			getListPagingNative();
-			getListbyNativeQuery();
+//			getListbyNativeQuery();
 //			deleteRecords();
+//			createIndex(); 
+//			dropIndexs();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -174,4 +176,34 @@ public class Test {
 		persistenceService.deleteRecordByNativeQuery(query, User.class);
 	}
 
+	/**
+	 * Create Index
+	 * @throws PersistenceException
+	 */
+	private static void createIndex() throws PersistenceException {
+		//create ascending order index
+//		persistenceService.createIndex(User.class, null, "first_name");
+//		
+//		//create descending order index
+//		persistenceService.createIndex(User.class, OrderBy.DESCENDING, "last_name");
+		
+		//create multiple column's ascending order index
+		persistenceService.createIndex(User.class, OrderBy.ASCENDING, "first_name", "last_name");
+		
+		//create multiple column's ascending order index
+		persistenceService.createCompoundIndex(User.class, "first_name", "last_name");
+		
+	}
+	
+	/**
+	 * Drop Indexs for Collection
+	 * @throws PersistenceException
+	 */
+	private static void dropIndexs() throws PersistenceException {
+		//Drop indexes for collection
+		persistenceService.dropIndexes(User.class);
+		
+	}
+	
+	
 }

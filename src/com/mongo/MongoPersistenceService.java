@@ -9,9 +9,11 @@ import org.mongodb.morphia.Morphia;
 import org.mongodb.morphia.query.Query;
 
 import com.mongo.MongoQueryConstant.OPERATOR;
+import com.mongodb.AggregationOutput;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
+import com.mongodb.MongoException;
 import com.mongodb.WriteResult;
 
 /**
@@ -33,6 +35,8 @@ public class MongoPersistenceService {
 	public void addSingleObject(Object object)throws PersistenceException {
 		try {
 			datastore.save(object);
+		} catch (MongoException e) {
+			throw new PersistenceException(e);
 		} catch (Exception e) {
 			throw new PersistenceException(e);
 		}
@@ -48,6 +52,8 @@ public class MongoPersistenceService {
 	public void addObjects(Object... object)throws PersistenceException {
 		try {
 			datastore.save(object);
+		} catch (MongoException e) {
+			throw new PersistenceException(e);
 		} catch (Exception e) {
 			throw new PersistenceException(e);
 		}
@@ -60,6 +66,8 @@ public class MongoPersistenceService {
 	public long getCount(Class<?> clazz) throws PersistenceException {
 		try {
 			return datastore.getCount(clazz);
+		} catch (MongoException e) {
+			throw new PersistenceException(e);
 		} catch (Exception e) {
 			throw new PersistenceException(e);
 		}
@@ -72,6 +80,8 @@ public class MongoPersistenceService {
 	public long getCountByQuery(Query<?> query) throws PersistenceException {
 		try {
 			return datastore.getCount(query);
+		} catch (MongoException e) {
+			throw new PersistenceException(e);
 		} catch (Exception e) {
 			throw new PersistenceException(e);
 		}
@@ -85,6 +95,8 @@ public class MongoPersistenceService {
 	public <T> List<T> getRecordsList(Class<T> clazz) throws PersistenceException {
 		try {
 			return datastore.find(clazz).asList();
+		} catch (MongoException e) {
+			throw new PersistenceException(e);
 		} catch (Exception e) {
 			throw new PersistenceException(e);
 		}
@@ -101,6 +113,8 @@ public class MongoPersistenceService {
 	public <T> T findOne(String key ,Object value, Class<T> clazz)  throws PersistenceException {
 		try {
 			return datastore.find(clazz, key, value).get();
+		} catch (MongoException e) {
+			throw new PersistenceException(e);
 		} catch (Exception e) {
 			throw new PersistenceException(e);
 		}
@@ -121,6 +135,8 @@ public class MongoPersistenceService {
 		try {
 			String query = key + " " + operator.getName();
 			return datastore.find(clazz, query, value).get();
+		} catch (MongoException e) {
+			throw new PersistenceException(e);
 		} catch (Exception e) {
 			throw new PersistenceException(e);
 		}
@@ -143,6 +159,8 @@ public class MongoPersistenceService {
 				return datastore.find(clazz, key, value).order(orderKey).asList();
 			}
 			return datastore.find(clazz, key, value).asList();
+		} catch (MongoException e) {
+			throw new PersistenceException(e);
 		} catch (Exception e) {
 			throw new PersistenceException(e);
 		}
@@ -170,6 +188,8 @@ public class MongoPersistenceService {
 				return datastore.find(clazz, query, value).order(orderKey).asList();
 			}
 			return datastore.find(clazz, query, value).asList();
+		} catch (MongoException e) {
+			throw new PersistenceException(e);
 		} catch (Exception e) {
 			throw new PersistenceException(e);
 		}
@@ -194,6 +214,8 @@ public class MongoPersistenceService {
 				return datastore.find(clazz, query, value).order(orderKey).asList();
 			}
 			return datastore.find(clazz, query, value).asList();
+		} catch (MongoException e) {
+			throw new PersistenceException(e);
 		} catch (Exception e) {
 			throw new PersistenceException(e);
 		}
@@ -219,6 +241,8 @@ public class MongoPersistenceService {
 				return datastore.find(clazz, key, value, (pageNumber-1)*pageSize, pageSize).order(orderKey).asList();
 			}
 			return datastore.find(clazz, key, value, (pageNumber-1)*pageSize, pageSize).asList();
+		} catch (MongoException e) {
+			throw new PersistenceException(e);
 		} catch (Exception e) {
 			throw new PersistenceException(e);
 		}
@@ -244,6 +268,8 @@ public class MongoPersistenceService {
 				return datastore.find(clazz).order(orderKey).offset((pageNumber-1)*pageSize).limit(pageSize).asList();
 			}
 			return datastore.find(clazz).offset((pageNumber-1)*pageSize).limit(pageSize).asList();
+		} catch (MongoException e) {
+			throw new PersistenceException(e);
 		} catch (Exception e) {
 			throw new PersistenceException(e);
 		}
@@ -276,6 +302,8 @@ public class MongoPersistenceService {
 			else 
 				dbObjectList = collection.find(query).skip((pageNumber-1)*pageSize).limit(pageSize).toArray();
 			return toObject(clazz, dbObjectList);
+		} catch (MongoException e) {
+			throw new PersistenceException(e);
 		} catch (Exception e) {
 			throw new PersistenceException(e);
 		}
@@ -304,6 +332,8 @@ public class MongoPersistenceService {
 			else
 				dbObjectList = collection.find(query, projectionQuery).sort(orderBy).skip((pageNumber-1)*pageSize).limit(pageSize).toArray();
 			return toObject(clazz, dbObjectList);
+		} catch (MongoException e) {
+			throw new PersistenceException(e);
 		} catch (Exception e) {
 			throw new PersistenceException(e);
 		}
@@ -322,11 +352,13 @@ public class MongoPersistenceService {
 			DBCollection collection = datastore.getCollection(clazz);
 			dbObjectList = collection.find(query).toArray();
 			return toObject(clazz, dbObjectList);
+		} catch (MongoException e) {
+			throw new PersistenceException(e);
 		} catch (Exception e) {
 			throw new PersistenceException(e);
 		}
 	}
-	
+
 	/**
 	 * Drop Collection
 	 * @param clazz
@@ -335,6 +367,8 @@ public class MongoPersistenceService {
 	public void dropCollection(Class<?> clazz) throws PersistenceException {
 		try {	
 			datastore.getCollection(clazz).drop();
+		} catch (MongoException e) {
+			throw new PersistenceException(e);
 		} catch (Exception e) {
 			throw new PersistenceException(e);
 		}
@@ -350,7 +384,9 @@ public class MongoPersistenceService {
 	public void deleteRecord(String key, Object value, Class<?> clazz)throws PersistenceException  {
 		try {
 			datastore.delete(datastore.createQuery(clazz).filter(key, value));
-		}  catch (Exception e) {
+		} catch (MongoException e) {
+			throw new PersistenceException(e);
+		} catch (Exception e) {
 			throw new PersistenceException(e);
 		}
 	}
@@ -366,7 +402,9 @@ public class MongoPersistenceService {
 		try {
 			DBCollection collection = datastore.getCollection(clazz);
 			collection.remove(new BasicDBObject());
-		}  catch (Exception e) {
+		} catch (MongoException e) {
+			throw new PersistenceException(e);
+		} catch (Exception e) {
 			throw new PersistenceException(e);
 		}
 	}
@@ -381,7 +419,9 @@ public class MongoPersistenceService {
 		try {
 			DBCollection collection = datastore.getCollection(clazz);
 			collection.remove(query);
-		}  catch (Exception e) {
+		} catch (MongoException e) {
+			throw new PersistenceException(e);
+		} catch (Exception e) {
 			throw new PersistenceException(e);
 		}
 	}
@@ -402,11 +442,13 @@ public class MongoPersistenceService {
 			if (res.getError()!=null && res.getN() == 0) 
 				System.err.println("Update Document Failed,  Error:"+res.getError()+", count: "+res.getN()+", LastError"+res.getLastError());
 			return res.getN();
-		}  catch (Exception e) {
+		} catch (MongoException e) {
+			throw new PersistenceException(e);
+		} catch (Exception e) {
 			throw new PersistenceException(e);
 		}
 	}
-	
+
 	/**
 	 * Update multiple record
 	 * Note:Made update query according to below operation
@@ -429,15 +471,17 @@ public class MongoPersistenceService {
 				System.err.println("Update  Document Failed,  Error:"+res.getError()+", count: "+res.getN()+", LastError:"+res.getLastError());
 			}
 			return res.getN();
-		}  catch (Exception e) {
+		} catch (MongoException e) {
+			throw new PersistenceException(e);
+		} catch (Exception e) {
 			throw new PersistenceException(e);
 		}
 	}
 
-	
+
 	/**
 	 * 
-	 * @author suresh.c
+	 * @author suresh
 	 *
 	 */
 	public enum OrderBy {
@@ -481,6 +525,111 @@ public class MongoPersistenceService {
 		morphia.map(clazz);
 		T pojo = morphia.fromDBObject(clazz, dbObj);
 		return pojo;
+	}
+
+	/**
+	 * To create indexing
+	 * Note:If you provide index annotation in pojo it should become more faster.
+	 * @param clazz
+	 * @param Order if OrderBy is null.Index will create in ascending order.
+	 * @param columnName column name for one or more indexes
+	 * @throws PersistenceException
+	 */
+	public void createIndex(Class<?> clazz, OrderBy Order, String... columnName) throws PersistenceException {
+		try {
+			DBCollection collection = datastore.getCollection(clazz);
+			if (Order == null) {
+				for (String column : columnName) {
+					BasicDBObject queryIndex = new BasicDBObject();
+					queryIndex.put(column, 1);
+					collection.createIndex(queryIndex);
+				}
+			} else {
+				for (String column : columnName) {
+					BasicDBObject queryIndex = new BasicDBObject();
+					queryIndex.put(column, Order.value);
+					collection.createIndex(queryIndex);
+				}
+			}
+		} catch (MongoException e) {
+			throw new PersistenceException(e);
+		} catch (Exception e) {
+			throw new PersistenceException(e);
+		}
+	}
+
+	/**
+	 * To create indexing
+	 * Note:If you provide index annotation in pojo it should become more faster.
+	 * @param clazz
+	 * @param Order if OrderBy is null.Index will create in ascending order.
+	 * @param ascColumname column name for create ascending index
+	 * @param dscColumnName column name for create descending index
+	 * @throws PersistenceException
+	 */
+	public void createCompoundIndex(Class<?> clazz, String ascColumname, String dscColumnName) throws PersistenceException {
+		try {
+			DBCollection collection = datastore.getCollection(clazz);
+			BasicDBObject queryIndex = new BasicDBObject();
+			if (ascColumname!=null)
+				createQueryIndexObject(queryIndex, 1, ascColumname);
+			if (dscColumnName!=null)
+				createQueryIndexObject(queryIndex, -1, dscColumnName);
+			collection.createIndex(queryIndex);
+		} catch (MongoException e) {
+			throw new PersistenceException(e);
+		} catch (Exception e) {
+			throw new PersistenceException(e);
+		}
+	}
+
+	/**
+	 * Create DBObject for indexing
+	 * @param queryIndex
+	 * @param indexOrder
+	 * @param columnName
+	 */
+	private void  createQueryIndexObject(BasicDBObject queryIndex,int indexOrder, String...columnName) {
+		for (String column : columnName) 
+			queryIndex.put(column, indexOrder);
+	}
+
+	/**
+	 * Drop all indexes
+	 * @param clazz clazz name which you want to drop all indexes for that class
+	 * @throws PersistenceException
+	 */
+	public void dropIndexes(Class<?> clazz) throws PersistenceException {
+		try {
+			DBCollection collection = datastore.getCollection(clazz);
+			collection.dropIndexes();
+		} catch (MongoException e) {
+			throw new PersistenceException(e);
+		} catch (Exception e) {
+			throw new PersistenceException(e);
+		}
+	}
+
+	/**
+	 *Give the documents based on aggregation query
+	 * @param clazz
+	 * @param query
+	 * @param dbObjectQuery
+	 * @return
+	 * @throws PersistenceException
+	 */
+	@SuppressWarnings({ "unchecked", "deprecation" })
+	public List<DBObject> getListByAggregation(Class<?> clazz,DBObject query,  DBObject... dbObjectQuery) throws PersistenceException {
+		try {
+			DBCollection collection = datastore.getCollection(clazz);
+			AggregationOutput output = collection.aggregate(query, dbObjectQuery);
+			List<DBObject> dbObjectList = (List<DBObject>) output.getCommandResult().get("result");
+			return dbObjectList;
+		} catch (MongoException e) {
+			throw new PersistenceException(e);
+		} catch (Exception e) {
+			throw new PersistenceException(e);
+		}
 	}
 
 }
