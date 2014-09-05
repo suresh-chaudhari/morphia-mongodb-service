@@ -23,6 +23,9 @@ Usage
 // Create the Mongo Persistence Service object
 MongoPersistenceService persistenceService = new MongoPersistenceService();
 
+//Get the datastore object to make morphia Query criteria 
+Datastore ds = persistenceService.getDatastore();
+
 //fetch the documents
 List<User> user =  persistenceService.find("first_name", "test","_id",OrderBy.DESCENDING, User.class);
 	
@@ -55,5 +58,12 @@ persistenceService.createCompoundIndex(User.class, "first_name", "last_name");
 
 //Drop indexes for collection
 persistenceService.dropIndexes(User.class);
+
+
+//fetch document by using query criteria
+List<User> user = ds.createQuery(User.class).filter("first_name", "test").asList();
+
+//fetch all document by using query
+List<User> user1 = ds.createQuery(User.class).asList();
 
 ```
