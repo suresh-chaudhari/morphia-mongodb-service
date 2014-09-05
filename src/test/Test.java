@@ -3,6 +3,7 @@ package test;
 import java.util.List;
 
 import org.bson.types.ObjectId;
+import org.mongodb.morphia.Datastore;
 
 import com.dataobject.Employee;
 import com.dataobject.User;
@@ -33,9 +34,19 @@ public class Test {
 //			deleteRecords();
 //			createIndex(); 
 //			dropIndexs();
+//			findByQuery();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+	
+	private static void findByQuery() {
+		Datastore ds = persistenceService.getDatastore();
+		List<User> user = ds.createQuery(User.class).filter("first_name", "test").asList();
+		System.out.println(user.size());
+		
+		List<User> user1 = ds.createQuery(User.class).asList();
+		System.out.println(user1.size());
 	}
 
 	/**
@@ -182,10 +193,10 @@ public class Test {
 	 */
 	private static void createIndex() throws PersistenceException {
 		//create ascending order index
-//		persistenceService.createIndex(User.class, null, "first_name");
-//		
-//		//create descending order index
-//		persistenceService.createIndex(User.class, OrderBy.DESCENDING, "last_name");
+		persistenceService.createIndex(User.class, null, "first_name");
+		
+		//create descending order index
+		persistenceService.createIndex(User.class, OrderBy.DESCENDING, "last_name");
 		
 		//create multiple column's ascending order index
 		persistenceService.createIndex(User.class, OrderBy.ASCENDING, "first_name", "last_name");

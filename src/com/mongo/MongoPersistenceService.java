@@ -199,15 +199,14 @@ public class MongoPersistenceService {
 	 * Returns all records by $IN search query
 	 * @param key
 	 * @param value
-	 * @param operator operator for condition check
 	 * @param clazz
-	 * @return
+	 * @return {@link List}
 	 * @throws PersistenceException
 	 */
-	public <T> List<T> findByIn(String key ,Object value, OPERATOR operator, String orderKey, OrderBy orderBy, Class<T> clazz) 
+	public <T> List<T> findByIn(String key ,Object value, String orderKey, OrderBy orderBy, Class<T> clazz) 
 			throws PersistenceException {
 		try {
-			String query = key + " " + operator.getName();
+			String query = key + " " + OPERATOR.IN.getName();
 			if (orderKey !=null && orderBy !=null) {
 				if(orderBy == OrderBy.DESCENDING)
 					orderKey ="-"+orderKey; //gives data in descending order
@@ -632,4 +631,13 @@ public class MongoPersistenceService {
 		}
 	}
 
+	public Datastore getDatastore() {
+		return datastore;
+	}
+
+	public void setDatastore(Datastore datastore) {
+		this.datastore = datastore;
+	}
+
+	
 }
